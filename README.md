@@ -2,9 +2,7 @@
 **Author:** Aaron Klump  <sourcecode@intheloftstudios.com>
 
 ##Summary
-**Provide a means to take a site offline totally, including blocking ALL login attempts by any user.**
-
-You may also visit the [project page](http://www.drupal.org/project/loft_offline) on Drupal.org.
+**Provide a mechanism to put a Drupal 7 site into extreme maintenance mode, which includes blocking ALL login by any user including user 1.**
 
 ##Installation
 1. Install as usual, see [http://drupal.org/node/70151](http://drupal.org/node/70151) for further information.
