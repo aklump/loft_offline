@@ -1,0 +1,17 @@
+<?php
+/**
+ * @file
+ * Base file for the loft_offline module.
+ *
+ * @defgroup loft_offline Loft Offline
+ * @{
+ */
+
+/**
+ * Implements hook_menu_site_status_alter().
+ */
+function loft_offline_menu_site_status_alter(&$page_callback_result, $read_only_path) {
+  if (variable_get('loft_offline', FALSE)) {
+    $page_callback_result = MENU_SITE_OFFLINE;
+  }
+}
