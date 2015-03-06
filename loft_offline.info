@@ -1,7 +1,7 @@
 name = "Loft Offline"
 description = "Provides custom Drupal integration for Loft Offline."
 package = Other
-version = "7.x-1.0-rc2"
+version = "7.x-1.0-rc3"
 core = 7.x
 
 project = loft_offline
