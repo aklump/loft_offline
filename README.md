@@ -9,10 +9,20 @@
 ##Installation
 1. Install as usual, see [http://drupal.org/node/70151](http://drupal.org/node/70151) for further information.
 1. Grant the following permission to all roles you wish to be alerted for pending maintenance _View advance warning_.
-1. You may configure settings at admin/config/system/variable
+1. To enable the ui, you will need to enable the variable_admin module, then, you may configure settings at admin/config/system/variable.
 
-## Warning
-Once the site has gone offline, it can only be brought back using either Drush or directly modifying the database.  Examples are shown below.
+## Going into extreme maintenance mode
+**Once the site has gone offline, it can only be brought back using either Drush or directly modifying the database.  Examples are shown below.**
+
+You have options:
+1. Use drush (see below)
+1. Through the ui at `admin/config/system/variable/edit/loft_offline`
+1. Directly in the database.
+
+## Coming out of extreme maintenance mode
+You have less options (the UI is not available because you cannot access the website using the browser).
+1. Use drush (see below)
+1. Directly in the database.
 
 ##Configuration with Drush
 To immediately take the site offline including blocking all logins by ALL users, use:

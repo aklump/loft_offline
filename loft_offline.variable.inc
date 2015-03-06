@@ -131,7 +131,7 @@ function loft_offline_variable_info($options) {
     'title' => t('Time format', array(), $options),
     'group' => 'loft_offline',
     'type' => 'string',
-    'default' => variable_get('date_format_medium', 'D, m/d/Y - H:i'),
+    'default' => 'g:ia T',
     'description' => t('Time format for offline messages', array(), $options),
     'required' => TRUE,
   );
