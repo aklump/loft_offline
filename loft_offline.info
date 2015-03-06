@@ -8,3 +8,5 @@ project = loft_offline
 project status url = http://code.intheloftstudios.com/release-history
 homepage = http://www.intheloftstudios.com/packages/drupal/loft_offline
 author = aklump
+
+dependencies[] = variable

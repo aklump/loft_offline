@@ -11,7 +11,103 @@
  * Implements hook_menu_site_status_alter().
  */
 function loft_offline_menu_site_status_alter(&$page_callback_result, $read_only_path) {
-  if (variable_get('loft_offline', FALSE)) {
-    $page_callback_result = MENU_SITE_OFFLINE;
+  $processed = TRUE;
+  $meta    = variable_get_value('loft_offline_meta');
+  $offline = variable_get_value('loft_offline');
+  if ($offline) {
+    $update  = FALSE;
+    if (empty($meta['start']) || $meta['previous'] !== $offline) {
+      // We subtract 1 so that an apparent boolean setting of loft_offline
+      // will have the same effect as closing it down immediately.  Otherwise
+      // the value of loft_offline will be a number of seconds in the future.
+      $meta['start']    = time() + ($offline - 1);
+      $meta['previous'] = $offline;
+      $update = TRUE;
+    }
+
+    $countdown = $meta['start'] - time();
+
+    if (time() >= $meta['start']) {
+      $page_callback_result = MENU_SITE_OFFLINE;
+      $meta['status']         = MENU_SITE_OFFLINE;
+      $update = TRUE;
+    }
+
+    // We have a pending offline, alert privilaged accounts.
+    // Give a message no more frequently than $threshold.
+    elseif ((empty($meta['countdown'])
+      || ($countdown + variable_get_value('loft_offline_threshold')) < $meta['countdown'])
+      && user_access('loft_offline:view advance notice')) {
+      
+      $meta['countdown'] = $countdown;
+      $update            = TRUE;
+      $message           = token_replace(variable_get_value('loft_offline_message'));
+      $format            = variable_get_value('loft_offline_message_time_format');
+      drupal_set_message(t($message, array(
+        '@time' => format_date($meta['start'], 'custom', $format),
+        '@remaining' => format_interval($countdown),
+      )), 'warning', FALSE);
+    }
+
+    if ($update) {
+      variable_set_value('loft_offline_meta', $meta);
+    }
   }
+
+  // If site is back online and start is set, we need to do some garbage
+  // collection.
+  elseif ($meta['start']) {
+    variable_delete('loft_offline');
+    variable_delete('loft_offline_meta');
+  }
+}
+
+/**
+ * Alters inbound URL requests.
+ *
+ * @param $path
+ *   The path being constructed, which, if a path alias, has been resolved to a
+ *   Drupal path by the database, and which also may have been altered by other
+ *   modules before this one.
+ * @param $original_path
+ *   The original path, before being checked for path aliases or altered by any
+ *   modules.
+ * @param $path_language
+ *   The language of the path.
+ *
+ * @see drupal_get_normal_path()
+ */
+function loft_offline_url_inbound_alter(&$path, $original_path, $path_language) {
+  if (user_is_logged_in()
+    && variable_get_value('loft_offline_force_logout')
+    && ($meta = variable_get_value('loft_offline_meta'))
+    && $meta['status'] == MENU_SITE_OFFLINE) {
+    $path = 'user/logout';
+  }
+}
+
+/**
+ * Implements hook_permission().
+ */
+function loft_offline_permission() {
+ return array(
+   'loft_offline:view advance notice' => array(
+     'title' => t('View advance warning'),
+     'description' => t('Allow roles to see pending offline status warnings.'),
+     'restrict access' => FALSE,
+   ),
+ );
+}
+
+/**
+ * Implements hook_variable_group_info().
+ */
+function loft_offline_variable_group_info() {
+  $groups['loft_offline'] = array(
+    'title' => t('Loft offline'),
+    'description' => t('Extreme maintenance mode.'),
+    'access' => 'administer site configuration',
+  );
+
+  return $groups;
 }
