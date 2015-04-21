@@ -127,6 +127,16 @@ function loft_offline_variable_info($options) {
     'description' => t('The message to display to users before the site goes offline.  Dynamic values are: @remaining, @time. Tokens are supported.', array(), $options),
     'required' => TRUE,
   );
+
+  $variables['loft_offline_whitelist_message'] = array(
+    'title' => t('Notice to whitelist users', array(), $options),
+    'group' => 'loft_offline',
+    'type' => 'text',
+    'default' => "[site:name] is currently in extreme maintenance mode for non-privilaged users.",
+    'description' => t('The message to display to whitelist users during extreme maintenance mode.  Tokens are supported.', array(), $options),
+    'required' => TRUE,
+  );
+
   $variables['loft_offline_message_time_format'] = array(
     'title' => t('Time format', array(), $options),
     'group' => 'loft_offline',
@@ -134,6 +144,14 @@ function loft_offline_variable_info($options) {
     'default' => 'g:ia T',
     'description' => t('Time format for offline messages', array(), $options),
     'required' => TRUE,
+  );
+  $variables['loft_offline_uids'] = array(
+    'title' => t('Allowed UIDs', array(), $options),
+    'group' => 'loft_offline',
+    'type' => 'string',
+    'default' => array(),
+    'description' => t('A space-separated list of UIDs that may still login during extreme maintenance.', array(), $options),
+    'required' => FALSE,
   );
   
   return $variables;

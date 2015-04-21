@@ -11,9 +11,11 @@
  * Implements hook_menu_site_status_alter().
  */
 function loft_offline_menu_site_status_alter(&$page_callback_result, $read_only_path) {
-  $processed = TRUE;
-  $meta    = variable_get_value('loft_offline_meta');
-  $offline = variable_get_value('loft_offline');
+  global $user;
+  $processed      = TRUE;
+  $meta           = variable_get_value('loft_offline_meta');
+  $offline        = variable_get_value('loft_offline');
+  
   if ($offline) {
     $update  = FALSE;
     if (empty($meta['start']) || $meta['previous'] !== $offline) {
@@ -26,11 +28,21 @@ function loft_offline_menu_site_status_alter(&$page_callback_result, $read_only_
     }
 
     $countdown = $meta['start'] - time();
+    if (time() >= $meta['start']) { 
 
-    if (time() >= $meta['start']) {
-      $page_callback_result = MENU_SITE_OFFLINE;
-      $meta['status']         = MENU_SITE_OFFLINE;
-      $update = TRUE;
+      // In extreme, but user is privilaged.
+      if (loft_offline_is_privilaged()) {
+        $message = token_replace(variable_get_value('loft_offline_whitelist_message'));
+        drupal_set_message(t($message), 'warning', FALSE);
+      }
+
+      // Non-privilaged user in extreme maintenance mode.
+      // elseif (count($_loft_offline_whitelist_uids) === 0 || current_path() !== 'user/login') {
+      else {
+        $page_callback_result = MENU_SITE_OFFLINE;
+        $meta['status']       = MENU_SITE_OFFLINE;
+        $update               = TRUE;
+      }
     }
 
     // We have a pending offline, alert privilaged accounts.
@@ -63,6 +75,36 @@ function loft_offline_menu_site_status_alter(&$page_callback_result, $read_only_
 }
 
 /**
+ * Returns all uids that are on the login whitelist.
+ *
+ * @return array uids
+ */
+function _loft_offline_whitelist_uids() {
+  static $uids = NULL;
+  if (!isset($uids)) {
+    $uids           = variable_get_value('loft_offline_uids');
+    if ($uids && preg_match_all('/(\d+)\s?/', $uids, $matches)) {
+      $uids = $matches[1];
+    }      
+  }
+
+  return $uids;
+}
+
+/**
+ * Determines if the current user or account may login during extreme mode.
+ *
+ * @param  object $account
+ *
+ * @return bool
+ */
+function loft_offline_is_privilaged($account = NULL) {
+  $account = isset($account) ? $account : $GLOBALS['user'];
+
+  return in_array($account->uid, _loft_offline_whitelist_uids()) || user_access('loft_offline:extreme_access', $account);
+}
+
+/**
  * Alters inbound URL requests.
  *
  * @param $path
@@ -78,8 +120,10 @@ function loft_offline_menu_site_status_alter(&$page_callback_result, $read_only_
  * @see drupal_get_normal_path()
  */
 function loft_offline_url_inbound_alter(&$path, $original_path, $path_language) {
+  global $user, $_loft_offline_whitelist_uids;
   if (user_is_logged_in()
     && variable_get_value('loft_offline_force_logout')
+    && !loft_offline_is_privilaged()
     && ($meta = variable_get_value('loft_offline_meta'))
     && $meta['status'] == MENU_SITE_OFFLINE) {
     $path = 'user/logout';
@@ -96,6 +140,11 @@ function loft_offline_permission() {
      'description' => t('Allow roles to see pending offline status warnings.'),
      'restrict access' => FALSE,
    ),
+   'loft_offline:extreme_access' => array(
+     'title' => t('Use the site in extreme maintenance mode'),
+     'description' => t('Allow users to login during extreme maintenance mode.'),
+     'restrict access' => FALSE,
+   ),   
  );
 }
 
