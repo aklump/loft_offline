@@ -1,7 +1,7 @@
 name = "Loft Offline"
 description = "Provides custom Drupal integration for Loft Offline."
 package = Other
-version = "7.x-1.0-rc5"
+version = "7.x-1.0-rc6"
 core = 7.x
 author = aklump
 
