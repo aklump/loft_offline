@@ -3,10 +3,6 @@ description = "Provides custom Drupal integration for Loft Offline."
 package = Other
 version = "7.x-1.0-rc5"
 core = 7.x
-
-project = loft_offline
-project status url = http://code.intheloftstudios.com/release-history
-homepage = http://www.intheloftstudios.com/packages/drupal/loft_offline
 author = aklump
 
 dependencies[] = variable
