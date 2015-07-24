@@ -1,18 +1,22 @@
 # Drupal Module: Loft Offline
 **Author:** Aaron Klump  <sourcecode@intheloftstudios.com>
 
-##Summary
+## Summary
 **Provide additional offline options such as advance warning of impending offline status, and a new extreme maintenance mode, which includes blocking ALL logins by any user including user 1; or alternately limiting login to a subset of user ids or by role.**
 
 * Allows for a delayed maintenance mode with optional user alert message.
 
-##Installation
+## Installation
 1. Install as usual, see [http://drupal.org/node/70151](http://drupal.org/node/70151) for further information.
 1. Grant the following permission to all roles you wish to be alerted for pending maintenance _View advance warning_.
-1. To enable the ui, you will need to enable the variable_admin module, then, you may configure settings at admin/config/system/variable.
+
+## Configuration
+1. To enable the ui, you will need to enable the variable_admin module, then, you may configure settings at `admin/config/system/variable`.
 
 ## Advance warning
 You may configure a message to be shown to users as an advance warning BEFORE the site is automatically taken offline.  The message that is shown is held in the variable `loft_offline_message`.
+
+**To set the message go to `admin/config/system/variable/module` and click on "Loft Offline" to expose the settings.**
 
 ## Extreme maintence mode
 By default no user can login during the extreme maintenance mode as described by this module.  However if you want to allow login to certain users you can certainly do that.
